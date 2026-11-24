@@ -184,14 +184,6 @@ export default function ImageStashPanel() {
         </button>
       ) : (
         <>
-          <div className="image-stash-contact">
-            <div className="image-stash-contact-row">
-              <span className="image-stash-contact-label">{t('contactLabel')}</span>
-              <a href="https://space.bilibili.com/285760" target="_blank" rel="noopener noreferrer">Bilibili</a>
-            </div>
-            <a href="https://wpa.qq.com/msgrd?v=3&uin=719937402&site=qq&menu=yes" target="_blank" rel="noopener noreferrer">QQ 719937402</a>
-            <a href="mailto:systemchester@gmail.com">{t('contactEmail')}</a>
-          </div>
           <div className="image-stash-header">
             <InboxOutlined />
             {isStashMode && <span className="image-stash-session-badge" title={t('stashSessionPersist')}>●</span>}
