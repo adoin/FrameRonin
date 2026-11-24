@@ -16,6 +16,14 @@ export class ImageRequestError extends Error {
   }
 }
 
+export function imageRequestErrorText(error: unknown, t: (key: string) => string) {
+  if (!(error instanceof ImageRequestError)) return t('relayError_generic')
+  const key = `relayError_${error.code}`
+  const translated = t(key)
+  const text = translated === key ? t('relayError_generic') : translated
+  return error.status ? `${text} (HTTP ${error.status})` : text
+}
+
 async function jsonRequest(url: string, body: object, auth?: string, throughRelay = false): Promise<unknown> {
   let response: Response
   try {

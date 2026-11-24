@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useState, useEffect } from 'react'
-import { ArrowLeftOutlined } from '@ant-design/icons'
+import { ArrowLeftOutlined, LoginOutlined, UserOutlined } from '@ant-design/icons'
 import { App as AntdApp, Button, Card, ConfigProvider, Layout, Spin, Steps } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import enUS from 'antd/locale/en_US'
@@ -11,9 +11,9 @@ import { ImageStashProvider } from './stash/context'
 import { useLanguage } from './i18n/context'
 import ImageStashPanel from './components/ImageStashPanel'
 import ImageGeneration from './components/ImageGeneration'
-import type { RelaySession } from './lib/imageRelay'
+import RelayAccountDialog from './components/RelayAccountDialog'
+import { RELAY_URL, type RelaySession } from './lib/imageRelay'
 import GifFrameConverter from './components/GifFrameConverter'
-import RoninLoginButton from './components/RoninLoginButton'
 import ImageExpandShrink from './components/ImageExpandShrink'
 import ImagePixelate from './components/ImagePixelate'
 import ImageResizeStroke from './components/ImageResizeStroke'
@@ -55,7 +55,14 @@ export type Step = 'upload' | 'params'
 
 const STEP_KEYS: Step[] = ['upload', 'params']
 
-function AppHeaderRight({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
+function AppHeaderRight({ lang, setLang, session, onOpenAccount }: {
+  lang: Lang
+  setLang: (l: Lang) => void
+  session: RelaySession | null
+  onOpenAccount: () => void
+}) {
+  const { t } = useLanguage()
+
   return (
     <>
       <div className="app-header-lang">
@@ -70,7 +77,11 @@ function AppHeaderRight({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => v
           </button>
         ))}
       </div>
-      <RoninLoginButton />
+      {RELAY_URL && (
+        <Button className="app-header-connect-btn" icon={session ? <UserOutlined /> : <LoginOutlined />} onClick={onOpenAccount}>
+          {session ? 'adoin' : t('relaySignIn')}
+        </Button>
+      )}
     </>
   )
 }
@@ -80,6 +91,11 @@ function App() {
   const [gemToken, setGemToken] = useState(() => getGemToken())
   const [mode, setMode] = useState<AppMode>(null)
   const [relaySession, setRelaySession] = useState<RelaySession | null>(null)
+  const [relayAccountOpen, setRelayAccountOpen] = useState(false)
+  const openRelayAccount = () => setRelayAccountOpen(true)
+  const expireRelaySession = (token: string) => {
+    setRelaySession((current) => current?.token === token ? null : current)
+  }
   /** 首页快捷键：R/T/N → RoninPro 子模块、S → Sprite Sheet 调整等 */
   const [roninProDeepLink, setRoninProDeepLink] = useState<string | null>(null)
   const consumeRoninProDeepLink = useCallback(() => setRoninProDeepLink(null), [])
@@ -287,6 +303,7 @@ function App() {
       <ImageStashProvider>
       <AntdApp>
       <ImageStashPanel />
+      <RelayAccountDialog open={relayAccountOpen} onClose={() => setRelayAccountOpen(false)} session={relaySession} setSession={setRelaySession} />
       <Layout className="app-layout">
         <Header className="app-header">
           <div className="app-header-bg" aria-hidden="true" />
@@ -303,7 +320,7 @@ function App() {
             </div>
             <div className="app-header-right">
               <button type="button" className="app-header-lang-btn" onClick={() => setMode('imageGeneration')}>{t('relayTitle')}</button>
-              <AppHeaderRight lang={lang} setLang={setLang} />
+              <AppHeaderRight lang={lang} setLang={setLang} session={relaySession} onOpenAccount={openRelayAccount} />
             </div>
           </div>
         </Header>
@@ -348,7 +365,7 @@ function App() {
               />
             </Card>
           ) : mode === 'imageGeneration' ? (
-            <ImageGeneration onBack={() => setMode(null)} session={relaySession} setSession={setRelaySession} />
+            <ImageGeneration onBack={() => setMode(null)} session={relaySession} onSessionExpired={expireRelaySession} onOpenAccount={openRelayAccount} />
           ) : mode === 'image' ? (
             <Card>
               <div style={{ marginBottom: 16 }}>

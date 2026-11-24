@@ -6,6 +6,7 @@ import { useNftOwnership } from '../hooks/useNftOwnership'
 import { useLanguage } from '../i18n/context'
 import { FRAME_TOKEN_CONTRACT_ADDRESS } from '../config/frameToken'
 import { FREE_MINT_NFT_DATA, FRAME_TOKEN_CLAIM_DATA } from '../lib/roninClaimCalldata'
+import RoninLoginButton from './RoninLoginButton'
 
 /** RoninPro — 用户向领取 NFT 与 FRAME（无配置步骤，开箱即用） */
 export default function RoninProNftClaim() {
@@ -87,6 +88,8 @@ export default function RoninProNftClaim() {
                 {address ? t('roninProNftClaimLead') : t('roninProNftClaimLeadDisconnected')}
               </Typography.Paragraph>
             </div>
+
+            <RoninLoginButton />
 
             <div>
               <Typography.Text strong>{t('roninProNftGiftTitle')}</Typography.Text>
