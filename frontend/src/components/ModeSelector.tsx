@@ -58,6 +58,7 @@ const GEM_CHAR_V3_SAMPLE_URL = `${import.meta.env.BASE_URL}gempic/${encodeURICom
 
 export type AppMode =
   | 'video'
+  | 'imageGeneration'
   | 'image'
   | 'gif'
   | 'spritesheet'

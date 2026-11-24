@@ -10,6 +10,8 @@ import { LocalWorkspaceProvider } from './localWorkspace/context'
 import { ImageStashProvider } from './stash/context'
 import { useLanguage } from './i18n/context'
 import ImageStashPanel from './components/ImageStashPanel'
+import ImageGeneration from './components/ImageGeneration'
+import type { RelaySession } from './lib/imageRelay'
 import GifFrameConverter from './components/GifFrameConverter'
 import RoninLoginButton from './components/RoninLoginButton'
 import ImageExpandShrink from './components/ImageExpandShrink'
@@ -77,6 +79,7 @@ function App() {
   const { lang, setLang, t } = useLanguage()
   const [gemToken, setGemToken] = useState(() => getGemToken())
   const [mode, setMode] = useState<AppMode>(null)
+  const [relaySession, setRelaySession] = useState<RelaySession | null>(null)
   /** 首页快捷键：R/T/N → RoninPro 子模块、S → Sprite Sheet 调整等 */
   const [roninProDeepLink, setRoninProDeepLink] = useState<string | null>(null)
   const consumeRoninProDeepLink = useCallback(() => setRoninProDeepLink(null), [])
@@ -299,6 +302,7 @@ function App() {
               </div>
             </div>
             <div className="app-header-right">
+              <button type="button" className="app-header-lang-btn" onClick={() => setMode('imageGeneration')}>{t('relayTitle')}</button>
               <AppHeaderRight lang={lang} setLang={setLang} />
             </div>
           </div>
@@ -343,6 +347,8 @@ function App() {
                 }}
               />
             </Card>
+          ) : mode === 'imageGeneration' ? (
+            <ImageGeneration onBack={() => setMode(null)} session={relaySession} setSession={setRelaySession} />
           ) : mode === 'image' ? (
             <Card>
               <div style={{ marginBottom: 16 }}>
